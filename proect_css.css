@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Inline:opsz,wght@10..72,100..900&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.img1 {
+    width: 100%;
+    height: 100%;
+
+}
+.media {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: min-content;
+    background-color: #808080;
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    justify-items: center;
+    align-items: center;
+}
