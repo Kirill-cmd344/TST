@@ -21,44 +21,48 @@ function initApp() {
         console.log("Кнопка нажата!");
         
         try {
-            // Показываем пользователю, что данные собираются
             displayInfo("Сбор данных о вашем устройстве...");
             
-            // Получаем данные об аппаратном обеспечении
+            // Get hardware info
             const hardwareInfo = getHardwareInfo();
-            const hardwareText = `Аппаратная информация:
-Платформа: ${hardwareInfo.platform}
-Браузер: ${hardwareInfo.userAgent}
-Ядер процессора: ${hardwareInfo.cores}
-ОЗУ: ${hardwareInfo.memory}`;
+            displayInfo(`Аппаратная информация:
+                Платформа: ${hardwareInfo.platform},
+                Браузер: ${hardwareInfo.userAgent},
+                Ядер процессора: ${hardwareInfo.cores},
+                ОЗУ: ${hardwareInfo.memory}`);
             
-            displayInfo(hardwareText);
-            
-            // Запрашиваем разрешение на геолокацию
+            // Get location data
             displayInfo("Запрашиваем доступ к вашей геолокации...");
-            
-            // Получаем данные о местоположении
-            let locationText = "";
+            let locationData = {};
             try {
-                const locationData = await getLocation();
-                locationText = `Ваше местоположение:
-Широта: ${locationData.latitude}
-Долгота: ${locationData.longitude}
-Точность: ${locationData.accuracy} м`;
-                
-                displayInfo(locationText);
+                locationData = await getLocation();
+                displayInfo(`Ваше местоположение:
+                    Широта: ${locationData.latitude},
+                    Долгота: ${locationData.longitude},
+                    Точность: ${locationData.accuracy} м`);
             } catch (error) {
-                locationText = `Ошибка геолокации: ${error.message}`;
-                displayInfo(locationText);
+                locationData = { error: error.message };
+                displayInfo(`Ошибка геолокации: ${error.message}`);
             }
-            
-            // Сохраняем данные в файл
-            const timestamp = new Date().toISOString();
-            const fileName = `user_data_${timestamp}.txt`;
-            const fileContent = `Данные пользователя - ${timestamp}\n\n${hardwareText}\n\n${locationText}`;
-            
-            saveToFile(fileName, fileContent);
-            
+    
+            // Send data to server
+            const response = await fetch('http://localhost:3000/saveUserData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    hardware: hardwareInfo,
+                    location: locationData,
+                    timestamp: new Date().toISOString()
+                })
+            });
+    
+            if (response.ok) {
+                displayInfo("Данные успешно сохранены");
+            } else {
+                displayInfo("Ошибка при сохранении данных");
+            }
         } catch (error) {
             displayInfo(`Произошла ошибка: ${error.message}`);
         }
